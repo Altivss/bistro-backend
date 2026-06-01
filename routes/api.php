@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\AuthController;
 
-// Handle preflight requests
-Route::options('/{any}', function() {
-    return response()->noContent();
-})->where('any', '.*');
-
 Route::middleware('api')->group(function () {
     // Auth endpoints (public)
     Route::post('/auth/login', [AuthController::class, 'login']);
