@@ -13,9 +13,14 @@ class Feedback extends Model
         'category_id',
         'rating',
         'message',
+        'status',
+        'response',
+        'internal_notes',
+        'archived',
     ];
 
     protected $casts = [
         'rating' => 'integer',
+        'archived' => 'boolean',
     ];
 }

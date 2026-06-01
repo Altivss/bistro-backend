@@ -16,6 +16,10 @@ return new class extends Migration
             $table->integer('category_id');
             $table->integer('rating');
             $table->text('message')->nullable();
+            $table->string('status')->default('New');
+            $table->text('response')->nullable();
+            $table->text('internal_notes')->nullable();
+            $table->boolean('archived')->default(false);
             $table->timestamps();
         });
     }
