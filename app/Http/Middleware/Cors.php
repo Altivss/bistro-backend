@@ -48,15 +48,20 @@ class Cors
         // Process the request
         $response = $next($request);
 
-        // Add CORS headers to all responses
-        if ($isAllowed) {
-            $response->header('Access-Control-Allow-Origin', $origin)
-                ->header('Access-Control-Allow-Credentials', 'true');
+        // Add CORS headers to all responses (when Origin is present)
+        if ($hasOrigin) {
+            $response->header('Access-Control-Allow-Origin', $origin);
+
+            // Credentials are only valid when the requesting origin is allowed by policy.
+            if ($isAllowed) {
+                $response->header('Access-Control-Allow-Credentials', 'true');
+            }
         }
 
         $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
             ->header('Access-Control-Expose-Headers', 'Authorization');
+
 
         return $response;
     }
