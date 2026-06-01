@@ -13,9 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(prepend: [
-            \App\Http\Middleware\Cors::class,
-        ]);
+        // Use Laravel's built-in HandleCors middleware with config/cors.php
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
