@@ -9,22 +9,24 @@ class Cors
 {
     public function handle(Request $request, Closure $next)
     {
-        $response = $next($request);
-
-        // Handle preflight requests
+        // Handle preflight requests FIRST (before routing)
         if ($request->getMethod() === 'OPTIONS') {
-            return response('', 200)
+            return response('', 204)
                 ->header('Access-Control-Allow-Origin', '*')
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With')
-                ->header('Access-Control-Max-Age', '3600');
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
+                ->header('Access-Control-Max-Age', '86400');
         }
 
-        // Add CORS headers to response
-        return $response
-            ->header('Access-Control-Allow-Origin', '*')
+        // Process the request
+        $response = $next($request);
+
+        // Add CORS headers to all responses
+        $response->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
             ->header('Access-Control-Expose-Headers', 'Authorization');
+
+        return $response;
     }
 }
