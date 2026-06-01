@@ -5,6 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\AuthController;
 
+// Health check endpoint
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'app' => 'running'
+    ]);
+});
+
 Route::middleware('api')->group(function () {
     // Auth endpoints (public)
     Route::post('/auth/login', [AuthController::class, 'login']);
