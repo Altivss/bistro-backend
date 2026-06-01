@@ -28,12 +28,16 @@ class Cors
         if ($request->getMethod() === 'OPTIONS') {
             $response = response('', 204);
 
-            // Always set CORS headers for preflight when origin exists / allowed.
-            // If origin isn't allowed, still return a 204 (browser will block).
-            if ($hasOrigin && $isAllowed) {
+            // Always set Access-Control-Allow-Origin on preflight whenever Origin is present.
+            // This prevents the browser from failing early due to missing headers.
+            if ($hasOrigin) {
                 $response->header('Access-Control-Allow-Origin', $origin);
-                $response->header('Access-Control-Allow-Credentials', 'true');
+                // Credentials are only valid when the requesting origin is allowed by policy.
+                if ($isAllowed) {
+                    $response->header('Access-Control-Allow-Credentials', 'true');
+                }
             }
+
 
             return $response
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
