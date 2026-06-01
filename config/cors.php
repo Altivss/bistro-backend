@@ -3,12 +3,9 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['*'],
-    'allowed_origins_patterns' => [
-        '#.*vercel\.app#',
-    ],
+    'allowed_origins' => explode(',', env('ALLOWED_CORS_ORIGINS', 'http://localhost:5173')),
     'allowed_headers' => ['*'],
-    'exposed_headers' => [],
-    'max_age' => 0,
-    'supports_credentials' => false,
+    'exposed_headers' => ['Authorization'],
+    'max_age' => 86400,
+    'supports_credentials' => true,
 ];
