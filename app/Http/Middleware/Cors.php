@@ -28,22 +28,29 @@ class Cors
         if ($request->getMethod() === 'OPTIONS') {
             $response = response('', 204);
 
-            // Always set Access-Control-Allow-Origin on preflight whenever Origin is present.
-            // This prevents the browser from failing early due to missing headers.
+            // Preflight must include Access-Control-Allow-Origin or the browser will block.
+            // If Origin is missing we fall back to "*" (safe for non-credentialed requests).
             if ($hasOrigin) {
                 $response->header('Access-Control-Allow-Origin', $origin);
+
                 // Credentials are only valid when the requesting origin is allowed by policy.
                 if ($isAllowed) {
                     $response->header('Access-Control-Allow-Credentials', 'true');
                 }
+            } else {
+                $response->header('Access-Control-Allow-Origin', '*');
             }
 
+            // Reflect requested headers when possible to avoid missing/invalid values.
+            $requestedHeaders = $request->header('Access-Control-Request-Headers');
+            $allowHeaders = $requestedHeaders ?: 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language';
 
             return $response
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
+                ->header('Access-Control-Allow-Headers', $allowHeaders)
                 ->header('Access-Control-Max-Age', '86400');
         }
+
 
         // Process the request
         $response = $next($request);
@@ -58,10 +65,13 @@ class Cors
             }
         }
 
+        // For non-preflight responses, also make sure headers/methods are explicitly listed.
+        // Note: Access-Control-Allow-Headers/Methods must not contain invalid values.
         $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
+            // Use the request's requested headers if present (browser will validate exact matches)
+            ->header('Access-Control-Allow-Headers', $request->header('Access-Control-Request-Headers')
+                ?: 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
             ->header('Access-Control-Expose-Headers', 'Authorization');
-
 
         return $response;
     }
