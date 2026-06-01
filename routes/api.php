@@ -13,7 +13,7 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::middleware('api')->group(function () {
+Route::middleware(['api', 'cors'])->group(function () {
     // Auth endpoints (public)
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
