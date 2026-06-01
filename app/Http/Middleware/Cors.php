@@ -18,20 +18,24 @@ class Cors
     public function handle(Request $request, Closure $next)
     {
         $origin = $request->header('Origin');
-        $isAllowed = in_array($origin, $this->allowedOrigins) || empty($this->allowedOrigins);
+        $hasOrigin = !empty($origin);
+
+        // If an allowlist is configured, only reflect for those origins.
+        // If no allowlist is configured, reflect any incoming Origin (good default for cross-site SPAs).
+        $isAllowed = $hasOrigin && (in_array($origin, $this->allowedOrigins) || empty($this->allowedOrigins));
 
         // Handle preflight requests FIRST (before routing)
         if ($request->getMethod() === 'OPTIONS') {
             $response = response('', 204);
-            
-            if ($isAllowed && $origin) {
+
+            if ($isAllowed) {
                 $response->header('Access-Control-Allow-Origin', $origin);
+                $response->header('Access-Control-Allow-Credentials', 'true');
             }
-            
+
             return $response
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
-                ->header('Access-Control-Allow-Credentials', 'true')
                 ->header('Access-Control-Max-Age', '86400');
         }
 
@@ -39,11 +43,11 @@ class Cors
         $response = $next($request);
 
         // Add CORS headers to all responses
-        if ($isAllowed && $origin) {
+        if ($isAllowed) {
             $response->header('Access-Control-Allow-Origin', $origin)
                 ->header('Access-Control-Allow-Credentials', 'true');
         }
-        
+
         $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Accept-Language')
             ->header('Access-Control-Expose-Headers', 'Authorization');
@@ -51,3 +55,4 @@ class Cors
         return $response;
     }
 }
+
